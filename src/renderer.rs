@@ -3,6 +3,8 @@ use crate::raycaster::Raycaster;
 use crate::vector::Vector3;
 use pixels::Pixels;
 
+const NUM_THREADS: usize = 8;
+
 fn get_pixel_color(raycaster: &Raycaster, ray: &Ray) -> Vector3 {
     if let Some(intersected_voxel) = raycaster.fast_cast_ray_dda(ray, 64) {
         intersected_voxel.color
@@ -23,28 +25,43 @@ pub fn draw_frame(
     let fov: f32 = 60.0_f32.to_radians();
     let aspect_ratio = width as f32 / height as f32;
 
-    for y in 0..height {
-        for x in 0..width {
-            let ndc_x = (x as f32 + 0.5) / width as f32 * 2.0 - 1.0;
-            let ndc_y = -((y as f32 + 0.5) / height as f32 * 2.0 - 1.0);
+    let frame = std::sync::Mutex::new(frame);
 
-            let ray_direction = Vector3::new(
-                ndc_x * aspect_ratio * (fov / 2.0).tan(),
-                ndc_y * (fov / 2.0).tan(),
-                1.0,
-            );
+    rayon::scope(|s| {
+        for i in 0..NUM_THREADS {
+            let frame = &frame;
+            let mut tmp = Vec::new();
 
-            let rotated_ray_direction = ray_direction.rotate(rotation_angle);
+            s.spawn(move |_| {
+                for y in (i..height as usize).step_by(NUM_THREADS) {
+                    for x in 0..width as usize {
+                        let ndc_x = (x as f32 + 0.5) / width as f32 * 2.0 - 1.0;
+                        let ndc_y = -((y as f32 + 0.5) / height as f32 * 2.0 - 1.0);
 
-            let ray = Ray::new(ray_origin, rotated_ray_direction.normalize());
+                        let ray_direction = Vector3::new(
+                            ndc_x * aspect_ratio * (fov / 2.0).tan(),
+                            ndc_y * (fov / 2.0).tan(),
+                            1.0,
+                        );
 
-            let color = get_pixel_color(raycaster, &ray);
-            let index = (x + y * width) as usize;
+                        let rotated_ray_direction = ray_direction.rotate(rotation_angle);
 
-            frame[index * 4] = (color.x * 255.0) as u8;
-            frame[index * 4 + 1] = (color.y * 255.0) as u8;
-            frame[index * 4 + 2] = (color.z * 255.0) as u8;
-            frame[index * 4 + 3] = 255;
+                        let ray = Ray::new(ray_origin, rotated_ray_direction.normalize());
+
+                        let color = get_pixel_color(raycaster, &ray);
+                        let index = x + y * width as usize;
+
+                        tmp.push((index, color));
+                    }
+                }
+                let mut frame = frame.lock().unwrap();
+                for (index, color) in tmp {
+                    frame[index * 4] = (color.x * 255.0) as u8;
+                    frame[index * 4 + 1] = (color.y * 255.0) as u8;
+                    frame[index * 4 + 2] = (color.z * 255.0) as u8;
+                    frame[index * 4 + 3] = 255;
+                }
+            });
         }
-    }
+    });
 }
