@@ -27,7 +27,7 @@ impl Raycaster {
 
             if let Some(voxel) = self.map.get_voxel(grid_x, grid_y, grid_z) {
                 if !voxel.is_empty {
-                    return Some(&voxel);
+                    return Some(voxel);
                 }
             }
 
@@ -60,7 +60,7 @@ impl Raycaster {
                     .get_voxel(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32)
             {
                 if !voxel.is_empty {
-                    return Some(&voxel);
+                    return Some(voxel);
                 }
             }
 
@@ -68,15 +68,15 @@ impl Raycaster {
             match step_axis {
                 0 => {
                     t_max.x += t_delta.x;
-                    grid_pos.x += grid_step.x as f32;
+                    grid_pos.x += grid_step.x;
                 }
                 1 => {
                     t_max.y += t_delta.y;
-                    grid_pos.y += grid_step.y as f32;
+                    grid_pos.y += grid_step.y;
                 }
                 2 => {
                     t_max.z += t_delta.z;
-                    grid_pos.z += grid_step.z as f32;
+                    grid_pos.z += grid_step.z;
                 }
                 _ => unreachable!(),
             }
@@ -115,15 +115,15 @@ impl Raycaster {
                     match step_axis {
                         0 => {
                             t_max.x += t_delta.x;
-                            grid_pos.x += grid_step.x as f32;
+                            grid_pos.x += grid_step.x;
                         }
                         1 => {
                             t_max.y += t_delta.y;
-                            grid_pos.y += grid_step.y as f32;
+                            grid_pos.y += grid_step.y;
                         }
                         2 => {
                             t_max.z += t_delta.z;
-                            grid_pos.z += grid_step.z as f32;
+                            grid_pos.z += grid_step.z;
                         }
                         _ => unreachable!(),
                     }
@@ -138,7 +138,7 @@ impl Raycaster {
                         .get_voxel(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32)
                 {
                     if !voxel.is_empty {
-                        return Some(&voxel);
+                        return Some(voxel);
                     }
                 }
 
@@ -146,15 +146,15 @@ impl Raycaster {
                 match step_axis {
                     0 => {
                         t_max.x += t_delta.x;
-                        grid_pos.x += grid_step.x as f32;
+                        grid_pos.x += grid_step.x;
                     }
                     1 => {
                         t_max.y += t_delta.y;
-                        grid_pos.y += grid_step.y as f32;
+                        grid_pos.y += grid_step.y;
                     }
                     2 => {
                         t_max.z += t_delta.z;
-                        grid_pos.z += grid_step.z as f32;
+                        grid_pos.z += grid_step.z;
                     }
                     _ => unreachable!(),
                 }

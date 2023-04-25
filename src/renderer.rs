@@ -38,7 +38,7 @@ pub fn draw_frame(
 
             let ray = Ray::new(ray_origin, rotated_ray_direction.normalize());
 
-            let color = get_pixel_color(&raycaster, &ray);
+            let color = get_pixel_color(raycaster, &ray);
             let index = (x + y * width) as usize;
 
             frame[index * 4] = (color.x * 255.0) as u8;

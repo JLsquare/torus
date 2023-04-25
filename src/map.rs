@@ -1,6 +1,6 @@
 use crate::chunk::{Chunk, ChunkPosition};
 use crate::perlin::PerlinGenerator;
-use crate::vector::{Vector3, Vector3Int};
+use crate::vector::{Vector3Int};
 use crate::voxel::Voxel;
 use std::collections::HashMap;
 
