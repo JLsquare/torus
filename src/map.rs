@@ -1,17 +1,19 @@
-use std::collections::HashMap;
 use crate::chunk::{Chunk, ChunkPosition};
-use crate::voxel::Voxel;
 use crate::perlin::PerlinGenerator;
 use crate::vector::{Vector3, Vector3Int};
+use crate::voxel::Voxel;
+use std::collections::HashMap;
 
 #[derive(Debug, Default, Clone)]
 pub struct Map {
-    pub chunks: HashMap<ChunkPosition, Chunk>
+    pub chunks: HashMap<ChunkPosition, Chunk>,
 }
 
 impl Map {
     pub fn new() -> Self {
-        Self { chunks: HashMap::new() }
+        Self {
+            chunks: HashMap::new(),
+        }
     }
 
     pub fn get(&self, x: i32, y: i32, z: i32) -> Option<&Chunk> {
@@ -112,7 +114,9 @@ impl Map {
                                         continue;
                                     }
 
-                                    if let Some(voxel) = chunk.get(x as isize + dx, y as isize + dy, z as isize + dz) {
+                                    if let Some(voxel) =
+                                        chunk.get(x as isize + dx, y as isize + dy, z as isize + dz)
+                                    {
                                         if !voxel.is_empty {
                                             let distance = dx.abs().max(dy.abs()).max(dz.abs());
                                             min_distance = min_distance.min(distance);

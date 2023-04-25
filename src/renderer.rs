@@ -1,7 +1,7 @@
 use crate::ray::Ray;
 use crate::raycaster::Raycaster;
-use pixels::Pixels;
 use crate::vector::Vector3;
+use pixels::Pixels;
 
 fn get_pixel_color(raycaster: &Raycaster, ray: &Ray) -> Vector3 {
     if let Some(intersected_voxel) = raycaster.fast_cast_ray_dda(ray, 64) {

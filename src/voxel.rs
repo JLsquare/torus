@@ -8,10 +8,16 @@ pub struct Voxel {
 
 impl Voxel {
     pub fn new(color: Vector3) -> Self {
-        Self { color, is_empty: false }
+        Self {
+            color,
+            is_empty: false,
+        }
     }
 
     pub fn empty() -> Self {
-        Self { color: Vector3::new(0.0, 0.0, 0.0), is_empty: true }
+        Self {
+            color: Vector3::new(0.0, 0.0, 0.0),
+            is_empty: true,
+        }
     }
 }

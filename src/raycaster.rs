@@ -40,15 +40,25 @@ impl Raycaster {
     pub fn cast_ray_dda(&self, ray: &Ray, max_step: i32) -> Option<&Voxel> {
         let mut grid_pos = ray.origin.floor();
         let grid_step = ray.direction.signum();
-        let mut t_max = (grid_pos.add_masked_scalar(1.0, &grid_step).subtract(&ray.origin)).component_div(&ray.direction).abs();
+        let mut t_max = (grid_pos
+            .add_masked_scalar(1.0, &grid_step)
+            .subtract(&ray.origin))
+        .component_div(&ray.direction)
+        .abs();
         let t_delta = grid_step.component_div(&ray.direction).abs();
 
         for _ in 0..max_step {
-            if !self.map.is_within_bounds(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32) {
+            if !self
+                .map
+                .is_within_bounds(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32)
+            {
                 break;
             }
 
-            if let Some(voxel) = self.map.get_voxel(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32) {
+            if let Some(voxel) =
+                self.map
+                    .get_voxel(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32)
+            {
                 if !voxel.is_empty {
                     return Some(&voxel);
                 }
@@ -70,7 +80,6 @@ impl Raycaster {
                 }
                 _ => unreachable!(),
             }
-
         }
 
         None
@@ -79,16 +88,26 @@ impl Raycaster {
     pub fn fast_cast_ray_dda(&self, ray: &Ray, max_step: i32) -> Option<&Voxel> {
         let mut grid_pos = ray.origin.floor();
         let grid_step = ray.direction.signum();
-        let mut t_max = (grid_pos.add_masked_scalar(1.0, &grid_step).subtract(&ray.origin)).component_div(&ray.direction).abs();
+        let mut t_max = (grid_pos
+            .add_masked_scalar(1.0, &grid_step)
+            .subtract(&ray.origin))
+        .component_div(&ray.direction)
+        .abs();
         let t_delta = grid_step.component_div(&ray.direction).abs();
 
         let mut step_count = 0;
         while step_count < max_step {
-            if !self.map.is_within_bounds(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32) {
+            if !self
+                .map
+                .is_within_bounds(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32)
+            {
                 break;
             }
 
-            let distance = self.map.get_distance(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32) as f32;
+            let distance =
+                self.map
+                    .get_distance(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32)
+                    as f32;
             if distance > 1.0 {
                 let step = (distance / ray.direction.magnitude()).ceil() as i32;
                 for _ in 0..step {
@@ -114,7 +133,10 @@ impl Raycaster {
                     }
                 }
             } else {
-                if let Some(voxel) = self.map.get_voxel(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32) {
+                if let Some(voxel) =
+                    self.map
+                        .get_voxel(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32)
+                {
                     if !voxel.is_empty {
                         return Some(&voxel);
                     }

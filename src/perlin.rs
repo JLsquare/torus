@@ -1,4 +1,4 @@
-use noise::{Perlin, NoiseFn};
+use noise::{NoiseFn, Perlin};
 
 pub struct PerlinGenerator {
     pub noise: Perlin,

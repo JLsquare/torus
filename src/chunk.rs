@@ -66,7 +66,7 @@ impl Chunk {
                             z as usize,
                             Voxel::new(Vector3::new(noise as f32, noise as f32, noise as f32)),
                         )
-                            .unwrap();
+                        .unwrap();
                     }
                 }
             }
