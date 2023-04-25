@@ -1,16 +1,16 @@
+use pixels::{Pixels, SurfaceTexture};
+use rand::prelude::*;
 use winit::{
-    event::{Event, WindowEvent, ElementState, VirtualKeyCode},
+    event::{ElementState, Event, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
 };
-use pixels::{Pixels, SurfaceTexture};
-use rand::prelude::*;
 
-use torus::vector::Vector3;
 use torus::map::Map;
 use torus::perlin::PerlinGenerator;
 use torus::raycaster::Raycaster;
 use torus::renderer::draw_frame;
+use torus::vector::Vector3;
 
 fn main() {
     let mut map = Map::new();
@@ -39,80 +39,86 @@ fn main() {
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
     let mut pixels = Pixels::new(window_size.width, window_size.height, surface_texture).unwrap();
 
-    event_loop.run(move |event, _, control_flow| {
-        match event {
-            Event::WindowEvent { event, .. } => match event {
-                WindowEvent::CloseRequested => {
-                    *control_flow = ControlFlow::Exit;
-                }
-                WindowEvent::Resized(size) => {
-                    pixels.resize_surface(size.width, size.height).expect("Error resizing surface");
-                }
-                WindowEvent::KeyboardInput { input, .. } => {
-                    if let Some(keycode) = input.virtual_keycode {
-                        let is_pressed = input.state == ElementState::Pressed;
-                        match keycode {
-                            VirtualKeyCode::Z => {
-                                if is_pressed {
-                                    ray_origin.z += 0.1;
-                                }
+    event_loop.run(move |event, _, control_flow| match event {
+        Event::WindowEvent { event, .. } => match event {
+            WindowEvent::CloseRequested => {
+                *control_flow = ControlFlow::Exit;
+            }
+            WindowEvent::Resized(size) => {
+                pixels
+                    .resize_surface(size.width, size.height)
+                    .expect("Error resizing surface");
+            }
+            WindowEvent::KeyboardInput { input, .. } => {
+                if let Some(keycode) = input.virtual_keycode {
+                    let is_pressed = input.state == ElementState::Pressed;
+                    match keycode {
+                        VirtualKeyCode::Z => {
+                            if is_pressed {
+                                ray_origin.z += 0.1;
                             }
-                            VirtualKeyCode::S => {
-                                if is_pressed {
-                                    ray_origin.z -= 0.1;
-                                }
-                            }
-                            VirtualKeyCode::A => {
-                                if is_pressed {
-                                    ray_rotation.y -= 0.1;
-                                }
-                            }
-                            VirtualKeyCode::D => {
-                                if is_pressed {
-                                    ray_origin.x += 0.1;
-                                }
-                            }
-                            VirtualKeyCode::Q => {
-                                if is_pressed {
-                                    ray_origin.x -= 0.1;
-                                }
-                            }
-                            VirtualKeyCode::E => {
-                                if is_pressed {
-                                    ray_rotation.y += 0.1;
-                                }
-                            }
-                            VirtualKeyCode::R => {
-                                if is_pressed {
-                                    ray_rotation.x -= 0.1;
-                                }
-                            }
-                            VirtualKeyCode::F => {
-                                if is_pressed {
-                                    ray_rotation.x += 0.1;
-                                }
-                            }
-                            _ => {}
                         }
+                        VirtualKeyCode::S => {
+                            if is_pressed {
+                                ray_origin.z -= 0.1;
+                            }
+                        }
+                        VirtualKeyCode::A => {
+                            if is_pressed {
+                                ray_rotation.y -= 0.1;
+                            }
+                        }
+                        VirtualKeyCode::D => {
+                            if is_pressed {
+                                ray_origin.x += 0.1;
+                            }
+                        }
+                        VirtualKeyCode::Q => {
+                            if is_pressed {
+                                ray_origin.x -= 0.1;
+                            }
+                        }
+                        VirtualKeyCode::E => {
+                            if is_pressed {
+                                ray_rotation.y += 0.1;
+                            }
+                        }
+                        VirtualKeyCode::R => {
+                            if is_pressed {
+                                ray_rotation.x -= 0.1;
+                            }
+                        }
+                        VirtualKeyCode::F => {
+                            if is_pressed {
+                                ray_rotation.x += 0.1;
+                            }
+                        }
+                        _ => {}
                     }
                 }
-                _ => {}
-            },
-            Event::RedrawRequested(_) => {
-                let time = std::time::Instant::now();
-                draw_frame(&mut pixels, &raycaster, ray_origin, window_size, ray_rotation);
-                println!("Redraw requested");
-                println!("FPS: {}", 1.0 / time.elapsed().as_secs_f32());
-
-                if let Err(e) = pixels.render() {
-                    eprintln!("pixels.render() failed: {:?}", e);
-                    *control_flow = ControlFlow::Exit;
-                }
-            }
-            Event::MainEventsCleared => {
-                window.request_redraw();
             }
             _ => {}
+        },
+        Event::RedrawRequested(_) => {
+            let time = std::time::Instant::now();
+            draw_frame(
+                &mut pixels,
+                &raycaster,
+                ray_origin,
+                window_size,
+                ray_rotation,
+            );
+            println!("Redraw requested");
+            println!("FPS: {}", 1.0 / time.elapsed().as_secs_f32());
+
+            if let Err(e) = pixels.render() {
+                eprintln!("pixels.render() failed: {:?}", e);
+                *control_flow = ControlFlow::Exit;
+            }
         }
+        Event::MainEventsCleared => {
+            window.request_redraw();
+        }
+        _ => {}
     });
 }

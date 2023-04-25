@@ -1,7 +1,7 @@
 use crate::ray::Ray;
 use crate::raycaster::Raycaster;
-use pixels::Pixels;
 use crate::vector::Vector3;
+use pixels::Pixels;
 
 fn get_pixel_color(raycaster: &Raycaster, ray: &Ray) -> Vector3 {
     if let Some(intersected_voxel) = raycaster.fast_cast_ray_dda(ray, 64) {
@@ -38,7 +38,7 @@ pub fn draw_frame(
 
             let ray = Ray::new(ray_origin, rotated_ray_direction.normalize());
 
-            let color = get_pixel_color(&raycaster, &ray);
+            let color = get_pixel_color(raycaster, &ray);
             let index = (x + y * width) as usize;
 
             frame[index * 4] = (color.x * 255.0) as u8;

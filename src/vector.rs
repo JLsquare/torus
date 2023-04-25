@@ -1,32 +1,32 @@
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Vector2Int {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Vector3Int {
     pub x: i32,
     pub y: i32,
-    pub z: i32
+    pub z: i32,
 }
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Vector2 {
     pub x: f32,
-    pub y: f32
+    pub y: f32,
 }
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Vector3 {
     pub x: f32,
     pub y: f32,
-    pub z: f32
+    pub z: f32,
 }
 
 impl Vector2 {
     pub fn new(x: f32, y: f32) -> Self {
-        Self {x, y}
+        Self { x, y }
     }
 
     pub fn add(&self, other: &Vector2) -> Self {
@@ -58,7 +58,7 @@ impl Vector2 {
         self.divide(length)
     }
 
-    pub fn to_vector2int(&self) -> Vector2Int{
+    pub fn to_vector2int(&self) -> Vector2Int {
         Vector2Int::new(self.x.round() as i32, self.y.round() as i32)
     }
 
@@ -73,7 +73,7 @@ impl Vector2 {
 
 impl Vector3 {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
-        Self {x, y, z}
+        Self { x, y, z }
     }
 
     pub fn add(&self, other: &Vector3) -> Self {
@@ -106,7 +106,11 @@ impl Vector3 {
     }
 
     pub fn to_vector3int(&self) -> Vector3Int {
-        Vector3Int::new(self.x.round() as i32, self.y.round() as i32, self.z.round() as i32)
+        Vector3Int::new(
+            self.x.round() as i32,
+            self.y.round() as i32,
+            self.z.round() as i32,
+        )
     }
 
     pub fn to_vector2(&self) -> Vector2 {
@@ -222,7 +226,7 @@ impl Vector3 {
 
 impl Vector2Int {
     pub fn new(x: i32, y: i32) -> Self {
-        Self {x, y}
+        Self { x, y }
     }
 
     pub fn add(&self, other: &Vector2Int) -> Self {
@@ -275,7 +279,7 @@ impl Vector2Int {
 
 impl Vector3Int {
     pub fn new(x: i32, y: i32, z: i32) -> Self {
-        Self {x, y, z}
+        Self { x, y, z }
     }
 
     pub fn add(&self, other: &Vector3Int) -> Self {
