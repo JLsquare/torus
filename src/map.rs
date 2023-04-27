@@ -1,7 +1,7 @@
 use crate::chunk::{Chunk, ChunkPosition};
 use crate::perlin::PerlinGenerator;
-use crate::vector::{Vector3Int};
 use crate::voxel::Voxel;
+use nalgebra::Vector3;
 use std::collections::HashMap;
 
 #[derive(Debug, Default, Clone)]
@@ -17,9 +17,9 @@ impl Map {
     }
 
     pub fn get(&self, x: i32, y: i32, z: i32) -> Option<&Chunk> {
-        let chunk_x = x.div_euclid(16);
-        let chunk_y = y.div_euclid(16);
-        let chunk_z = z.div_euclid(16);
+        let chunk_x = x.div_euclid(16) as i32;
+        let chunk_y = y.div_euclid(16) as i32;
+        let chunk_z = z.div_euclid(16) as i32;
         self.chunks.get(&(chunk_x, chunk_y, chunk_z))
     }
 
@@ -46,7 +46,7 @@ impl Map {
             let voxel_x = x.rem_euclid(16);
             let voxel_y = y.rem_euclid(16);
             let voxel_z = z.rem_euclid(16);
-            chunk.get(voxel_x as isize, voxel_y as isize, voxel_z as isize)
+            chunk.get_voxel(voxel_x as u8, voxel_y as u8, voxel_z as u8)
         } else {
             None
         }
@@ -61,7 +61,7 @@ impl Map {
             let voxel_x = x.rem_euclid(16);
             let voxel_y = y.rem_euclid(16);
             let voxel_z = z.rem_euclid(16);
-            chunk.get_mut(voxel_x as isize, voxel_y as isize, voxel_z as isize)
+            chunk.get_voxel_mut(voxel_x as u8, voxel_y as u8, voxel_z as u8)
         } else {
             None
         }
@@ -76,7 +76,7 @@ impl Map {
             let voxel_x = x.rem_euclid(16);
             let voxel_y = y.rem_euclid(16);
             let voxel_z = z.rem_euclid(16);
-            chunk.get_distance(voxel_x as usize, voxel_y as usize, voxel_z as usize)
+            chunk.get_distance(voxel_x as u8, voxel_y as u8, voxel_z as u8)
         } else {
             0
         }
@@ -90,43 +90,12 @@ impl Map {
     }
 
     pub fn generate(&mut self, perlin: &PerlinGenerator) {
-        for x in -1..=1 {
-            for y in -1..=1 {
-                for z in -1..=1 {
-                    let mut chunk = Chunk::new();
-                    chunk.generate(Vector3Int::new(x, y, z).multiply(16.0).to_vector3(), perlin);
+        for x in -8..=8 {
+            for y in -8..=8 {
+                for z in 0..=8 {
+                    let mut chunk = Chunk::new((x, y, z));
+                    chunk.generate(Vector3::new(x, y, z) * 16, perlin);
                     self.set(x * 16, y * 16, z * 16, chunk);
-                }
-            }
-        }
-    }
-
-    pub fn generate_distance_maps(&mut self, radius: u8) {
-        for chunk in self.chunks.values_mut() {
-            for x in 0..16 {
-                for y in 0..16 {
-                    for z in 0..16 {
-                        let mut min_distance = radius as isize;
-                        for dx in -(radius as isize)..=(radius as isize) {
-                            for dy in -(radius as isize)..=(radius as isize) {
-                                for dz in -(radius as isize)..=(radius as isize) {
-                                    if dx == 0 && dy == 0 && dz == 0 {
-                                        continue;
-                                    }
-
-                                    if let Some(voxel) =
-                                        chunk.get(x as isize + dx, y as isize + dy, z as isize + dz)
-                                    {
-                                        if !voxel.is_empty {
-                                            let distance = dx.abs().max(dy.abs()).max(dz.abs());
-                                            min_distance = min_distance.min(distance);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        chunk.set_distance(x, y, z, min_distance as u8);
-                    }
                 }
             }
         }

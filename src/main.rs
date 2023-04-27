@@ -6,27 +6,13 @@ use winit::{
     window::WindowBuilder,
 };
 
+use nalgebra::Vector3;
+use torus::camera::Camera;
 use torus::map::Map;
 use torus::perlin::PerlinGenerator;
-use torus::raycaster::Raycaster;
-use torus::renderer::draw_frame;
-use torus::vector::Vector3;
+use torus::renderer::Renderer;
 
 fn main() {
-    let mut map = Map::new();
-    let mut rng = thread_rng();
-    println!("Seed: {}", rng.next_u32());
-    println!("Generating map...");
-    map.generate(&PerlinGenerator::new(rng.next_u32()));
-    println!("Map generated!");
-    println!("Generating distance maps...");
-    map.generate_distance_maps(8);
-    println!("Distance maps generated!");
-
-    let raycaster = Raycaster::new(map.clone());
-    let mut ray_origin = Vector3::new(0.0, 0.0, 2.0);
-    let mut ray_rotation = Vector3::new(0.0, 0.0, 0.0);
-
     let event_loop = EventLoop::new();
 
     let window = WindowBuilder::new()
@@ -38,6 +24,39 @@ fn main() {
     let window_size = window.inner_size();
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
     let mut pixels = Pixels::new(window_size.width, window_size.height, surface_texture).unwrap();
+
+    let mut map = Map::new();
+    let mut rng = thread_rng();
+    println!("Seed: {}", rng.next_u32());
+    println!("Generating map...");
+    map.generate(&PerlinGenerator::new(rng.next_u32()));
+    println!("Map generated!");
+    println!("Generating distance maps...");
+    let map_clone = map.clone();
+    let total_chunks = map.chunks.len();
+    let mut count = 0;
+    for chunk in map.chunks.values_mut() {
+        count += 1;
+        println!(
+            "Generating distance map for chunk ({}, {}, {}), {}%",
+            chunk.position.0,
+            chunk.position.1,
+            chunk.position.2,
+            count as f32 / total_chunks as f32 * 100.0
+        );
+        chunk.generate_distance_map(&map_clone, 4);
+    }
+    println!("Distance maps generated!");
+
+    let renderer = Renderer::new(map.clone(), window_size.width, window_size.height, 8);
+
+    let mut camera = Camera::new(
+        renderer,
+        Vector3::new(0.0, 0.0, 0.0),
+        Vector3::new(0.0, 0.0, 0.0),
+        1.0,
+        0.1,
+    );
 
     event_loop.run(move |event, _, control_flow| match event {
         Event::WindowEvent { event, .. } => match event {
@@ -51,46 +70,55 @@ fn main() {
             }
             WindowEvent::KeyboardInput { input, .. } => {
                 if let Some(keycode) = input.virtual_keycode {
-                    let is_pressed = input.state == ElementState::Pressed;
                     match keycode {
                         VirtualKeyCode::Z => {
-                            if is_pressed {
-                                ray_origin.z += 0.1;
+                            if input.state == ElementState::Pressed {
+                                camera.move_forward();
                             }
                         }
                         VirtualKeyCode::S => {
-                            if is_pressed {
-                                ray_origin.z -= 0.1;
-                            }
-                        }
-                        VirtualKeyCode::A => {
-                            if is_pressed {
-                                ray_rotation.y -= 0.1;
-                            }
-                        }
-                        VirtualKeyCode::D => {
-                            if is_pressed {
-                                ray_origin.x += 0.1;
+                            if input.state == ElementState::Pressed {
+                                camera.move_backward();
                             }
                         }
                         VirtualKeyCode::Q => {
-                            if is_pressed {
-                                ray_origin.x -= 0.1;
+                            if input.state == ElementState::Pressed {
+                                camera.move_left();
                             }
                         }
-                        VirtualKeyCode::E => {
-                            if is_pressed {
-                                ray_rotation.y += 0.1;
+                        VirtualKeyCode::D => {
+                            if input.state == ElementState::Pressed {
+                                camera.move_right();
                             }
                         }
                         VirtualKeyCode::R => {
-                            if is_pressed {
-                                ray_rotation.x -= 0.1;
+                            if input.state == ElementState::Pressed {
+                                camera.move_up();
                             }
                         }
                         VirtualKeyCode::F => {
-                            if is_pressed {
-                                ray_rotation.x += 0.1;
+                            if input.state == ElementState::Pressed {
+                                camera.move_down();
+                            }
+                        }
+                        VirtualKeyCode::Up => {
+                            if input.state == ElementState::Pressed {
+                                camera.rotate_up();
+                            }
+                        }
+                        VirtualKeyCode::Down => {
+                            if input.state == ElementState::Pressed {
+                                camera.rotate_down();
+                            }
+                        }
+                        VirtualKeyCode::Left => {
+                            if input.state == ElementState::Pressed {
+                                camera.rotate_left();
+                            }
+                        }
+                        VirtualKeyCode::Right => {
+                            if input.state == ElementState::Pressed {
+                                camera.rotate_right();
                             }
                         }
                         _ => {}
@@ -101,13 +129,7 @@ fn main() {
         },
         Event::RedrawRequested(_) => {
             let time = std::time::Instant::now();
-            draw_frame(
-                &mut pixels,
-                &raycaster,
-                ray_origin,
-                window_size,
-                ray_rotation,
-            );
+            camera.draw_frame(&mut pixels);
             println!("Redraw requested");
             println!("FPS: {}", 1.0 / time.elapsed().as_secs_f32());
 
