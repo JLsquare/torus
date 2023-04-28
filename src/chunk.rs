@@ -88,7 +88,7 @@ impl Chunk {
     }
 
     pub fn generate_distance_map(&mut self, map: &Map, radius: i32) {
-        let start_distance = radius * radius * radius;
+        let start_distance = radius as f32;
         for x in 0..16 {
             for y in 0..16 {
                 for z in 0..16 {
@@ -106,19 +106,15 @@ impl Chunk {
                                     (z + dz + (self.position.2 * 16)) as i32,
                                 ) {
                                     if !voxel.is_empty {
-                                        let distance = dx * dx + dy * dy + dz * dz;
+                                        let distance =
+                                            ((dx * dx + dy * dy + dz * dz) as f32).sqrt();
                                         min_distance = min_distance.min(distance);
                                     }
                                 }
                             }
                         }
                     }
-                    self.set_distance(
-                        x as u8,
-                        y as u8,
-                        z as u8,
-                        (min_distance as f32 - 1.0).sqrt() as u8,
-                    );
+                    self.set_distance(x as u8, y as u8, z as u8, min_distance as u8);
                 }
             }
         }

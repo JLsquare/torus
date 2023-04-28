@@ -77,10 +77,14 @@ impl Renderer {
                 s.spawn(move |_| {
                     for y in (i as u32..height).step_by(self.num_threads) {
                         for x in 0..width {
-                            let ray_direction = self.calc_ray_direction(x, y, fov, aspect_ratio, rotation_angle).normalize();
+                            let ray_direction = self
+                                .calc_ray_direction(x, y, fov, aspect_ratio, rotation_angle)
+                                .normalize();
 
                             let color = {
-                                if let Some(intersected_voxel) = self.dda(&ray_origin, &ray_direction, 256).1 {
+                                if let Some(intersected_voxel) =
+                                    self.dda(&ray_origin, &ray_direction, 256).1
+                                {
                                     intersected_voxel.color
                                 } else {
                                     Vector3::zeros()
@@ -102,8 +106,8 @@ impl Renderer {
         ray_direction: &Vector3<f32>,
         max_step: i32,
     ) -> (i32, Option<&Voxel>) {
-        let mut grid_pos = ray_origin.map(|v| v.floor() as f32);
-        let grid_step = ray_direction.map(|v| v.signum() as f32);
+        let mut grid_pos = ray_origin.map(|v| v.ceil());
+        let grid_step = ray_direction.map(|v| v.signum());
         let mut t_max = (grid_pos.zip_map(&grid_step, |v, s| v + s as f32) - ray_origin)
             .component_div(ray_direction)
             .map(|v| v.abs());
@@ -123,7 +127,7 @@ impl Renderer {
                     .get_distance(grid_pos.x as i32, grid_pos.y as i32, grid_pos.z as i32)
                     as f32;
             if distance > 1.0 {
-                let step = (distance / ray_direction.magnitude()).ceil() as i32;
+                let step = (distance / ray_direction.magnitude()).floor() as i32;
                 for _ in 0..step {
                     let step_axis = t_max.imin();
                     match step_axis {

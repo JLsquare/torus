@@ -1,5 +1,6 @@
 use pixels::{Pixels, SurfaceTexture};
 use rand::prelude::*;
+use std::collections::HashMap;
 use winit::{
     event::{ElementState, Event, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -32,21 +33,7 @@ fn main() {
     map.generate(&PerlinGenerator::new(rng.next_u32()));
     println!("Map generated!");
     println!("Generating distance maps...");
-    let map_clone = map.clone();
-    let total_chunks = map.chunks.len();
-    let mut count = 0;
-    for chunk in map.chunks.values_mut() {
-        count += 1;
-        println!(
-            "Generating distance map for chunk ({}, {}, {}), {}%",
-            chunk.position.0,
-            chunk.position.1,
-            chunk.position.2,
-            count as f32 / total_chunks as f32 * 100.0
-        );
-        chunk.generate_distance_map(&map_clone, 4);
-    }
-    println!("Distance maps generated!");
+    map.generate_all_distance_maps(4);
 
     let renderer = Renderer::new(map.clone(), window_size.width, window_size.height, 8);
 
