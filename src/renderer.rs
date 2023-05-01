@@ -81,13 +81,18 @@ impl Renderer {
                                 .calc_ray_direction(x, y, fov, aspect_ratio, rotation_angle)
                                 .normalize();
 
+                            let (step_count, voxel) = self.dda(&ray_origin, &ray_direction, 256);
+
                             let color = {
-                                if let Some(intersected_voxel) =
-                                    self.dda(&ray_origin, &ray_direction, 256).1
+                                if let Some(voxel) = voxel
                                 {
-                                    intersected_voxel.color
+                                    Vector3::new(
+                                        voxel.color.x as f32 * (1.0 - step_count as f32 / 256.0),
+                                        voxel.color.y as f32 * (1.0 - step_count as f32 / 256.0),
+                                        voxel.color.z as f32 * (1.0 - step_count as f32 / 256.0)
+                                    ).map(|v| v as u8)
                                 } else {
-                                    Vector3::zeros()
+                                    Vector3::new(0, 0, 0)
                                 }
                             };
 

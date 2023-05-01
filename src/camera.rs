@@ -35,14 +35,14 @@ impl Camera {
     pub fn move_forward(&mut self) {
         let rotation_matrix =
             Rotation3::from_euler_angles(self.rotation.x, self.rotation.y, self.rotation.z);
-        let direction = rotation_matrix * Vector3::new(0.0, 0.0, -1.0);
+        let direction = rotation_matrix * Vector3::new(0.0, 0.0, 1.0);
         self.position += direction * self.movement_speed;
     }
 
     pub fn move_backward(&mut self) {
         let rotation_matrix =
             Rotation3::from_euler_angles(self.rotation.x, self.rotation.y, self.rotation.z);
-        let direction = rotation_matrix * Vector3::new(0.0, 0.0, 1.0);
+        let direction = rotation_matrix * Vector3::new(0.0, 0.0, -1.0);
         self.position += direction * self.movement_speed;
     }
 

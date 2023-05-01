@@ -18,7 +18,7 @@ fn main() {
 
     let window = WindowBuilder::new()
         .with_title("Torus")
-        .with_inner_size(winit::dpi::LogicalSize::new(800, 600))
+        .with_inner_size(winit::dpi::LogicalSize::new(1280, 960))
         .build(&event_loop)
         .unwrap();
 
