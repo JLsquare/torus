@@ -1,6 +1,5 @@
 use pixels::{Pixels, SurfaceTexture};
 use rand::prelude::*;
-use std::collections::HashMap;
 use winit::{
     event::{ElementState, Event, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -18,7 +17,7 @@ fn main() {
 
     let window = WindowBuilder::new()
         .with_title("Torus")
-        .with_inner_size(winit::dpi::LogicalSize::new(1280, 960))
+        .with_inner_size(winit::dpi::LogicalSize::new(480, 360))
         .build(&event_loop)
         .unwrap();
 

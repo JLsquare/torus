@@ -111,11 +111,25 @@ impl Renderer {
         ray_direction: &Vector3<f32>,
         max_step: i32,
     ) -> (i32, Option<&Voxel>) {
-        let mut grid_pos = ray_origin.map(|v| v.ceil());
+        let mut grid_pos = ray_origin.map(|v| v.floor());
         let grid_step = ray_direction.map(|v| v.signum());
-        let mut t_max = (grid_pos.zip_map(&grid_step, |v, s| v + s as f32) - ray_origin)
-            .component_div(ray_direction)
-            .map(|v| v.abs());
+        let mut t_max = Vector3::new(
+            if ray_direction.x > 0.0 {
+                ((grid_pos.x + 1.0) - ray_origin.x) / ray_direction.x
+            } else {
+                (grid_pos.x - ray_origin.x) / ray_direction.x
+            },
+            if ray_direction.y > 0.0 {
+                ((grid_pos.y + 1.0) - ray_origin.y) / ray_direction.y
+            } else {
+                (grid_pos.y - ray_origin.y) / ray_direction.y
+            },
+            if ray_direction.z > 0.0 {
+                ((grid_pos.z + 1.0) - ray_origin.z) / ray_direction.z
+            } else {
+                (grid_pos.z - ray_origin.z) / ray_direction.z
+            },
+        );
         let t_delta = grid_step.component_div(ray_direction).map(|v| v.abs());
 
         let mut step_count = 0;
